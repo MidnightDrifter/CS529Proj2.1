@@ -34,17 +34,82 @@ static int **BinaryCollisionArray;
 
 int GetCellValue(unsigned int X, unsigned int Y)
 {
-	return 0;
+	//return 0;
+
+	if (X < 0 || Y < 0 || X >= BINARY_MAP_HEIGHT || Y >= BINARY_MAP_WIDTH)
+	{
+		return 0;
+	}
+
+	else
+	{
+		return BinaryCollisionArray[X][Y];
+	}
 }
 
 int CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float scaleY)
 {
-	return 0;
+	//return 0;
+	float length2 = scaleY/ 2.f;
+	float length4 = length2 / 2.f;
+	float width2 = scaleX / 2.f;
+	float width4 = width2 / 2.f;
+
+	int topLeftX = (int)(PosX - width4);
+	int topLeftY = (int)(PosY + length2);
+
+	int topRightX = (int)(PosX + width4);
+	int topRightY = topLeftY;
+
+	int leftTopX = (int)(PosX - width2);
+	int leftTopY = (int)(PosY + length4);
+
+	int leftBotX = leftTopX;
+	int leftBotY = (int)(PosY - length4);
+
+	int botLeftX = topLeftX;
+	int botLeftY = (int)(PosY - length2);
+
+	int botRightX = topRightX;
+	int botRightY = botLeftY;
+
+	int rightTopX = (int)(PosX + width2);
+	int rightTopY = leftTopY;
+
+	int rightBotX = rightTopX;
+	int rightBotY = leftBotY;
+
+	int flag = 0;
+
+	//Assuming that we're only checking the points on each side for its respective collision vs. dividing into quadrants
+	if (GetCellValue(topLeftX, topLeftY) | GetCellValue(topRightX, topRightY) > 0)  //Might need to change these to explicitly check for 1 for both
+	{
+		flag |= COLLISION_TOP;
+	}
+
+	if (GetCellValue(rightTopX, rightTopY) | GetCellValue(rightBotX, rightBotY) > 0)
+	{
+		flag |= COLLISION_RIGHT;
+	}
+
+	if (GetCellValue(leftTopX, leftTopY) | GetCellValue(leftBotX, leftBotY) > 0)
+	{
+		flag |= COLLISION_LEFT;
+	}
+
+	if (GetCellValue(botLeftX, botLeftY) | GetCellValue(botRightX, botRightY) > 0)
+	{
+		flag |= COLLISION_BOTTOM;
+	}
+
+	return flag;
+
 }
 
-void SnapToCell(float *Coordinate)
+void SnapToCell(float *Coordinate)  //Would need to add a scale factor to this to make it work for non-unit-sized objects
 {
-	
+	float t = (int)(*Coordinate) + 0.5;
+	return t;
 }
 
 int ImportMapDataFromFile(char *FileName)
@@ -54,7 +119,14 @@ int ImportMapDataFromFile(char *FileName)
 
 void FreeMapData(void)
 {
+	for(int i=0;i<BINARY_MAP_HEIGHT;i++)
+	{
+		free(BinaryCollisionArray[i]);
+		free(MapData[i]);
+	}
 
+	free(BinaryCollisionArray);
+	free(MapData[i]);
 }
 
 void PrintRetrievedInformation(void)
