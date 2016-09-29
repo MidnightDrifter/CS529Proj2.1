@@ -82,22 +82,22 @@ int CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float 
 	int flag = 0;
 
 	//Assuming that we're only checking the points on each side for its respective collision vs. dividing into quadrants
-	if (GetCellValue(topLeftX, topLeftY) | GetCellValue(topRightX, topRightY) > 0)  //Might need to change these to explicitly check for 1 for both
+	if ((GetCellValue(topLeftX, topLeftY) | GetCellValue(topRightX, topRightY)) > 0)  //Might need to change these to explicitly check for 1 for both
 	{
 		flag |= COLLISION_TOP;
 	}
 
-	if (GetCellValue(rightTopX, rightTopY) | GetCellValue(rightBotX, rightBotY) > 0)
+	if ((GetCellValue(rightTopX, rightTopY) | GetCellValue(rightBotX, rightBotY)) > 0)
 	{
 		flag |= COLLISION_RIGHT;
 	}
 
-	if (GetCellValue(leftTopX, leftTopY) | GetCellValue(leftBotX, leftBotY) > 0)
+	if ((GetCellValue(leftTopX, leftTopY) | GetCellValue(leftBotX, leftBotY)) > 0)
 	{
 		flag |= COLLISION_LEFT;
 	}
 
-	if (GetCellValue(botLeftX, botLeftY) | GetCellValue(botRightX, botRightY) > 0)
+	if ((GetCellValue(botLeftX, botLeftY) | GetCellValue(botRightX, botRightY)) > 0)
 	{
 		flag |= COLLISION_BOTTOM;
 	}
@@ -108,13 +108,65 @@ int CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float 
 
 void SnapToCell(float *Coordinate)  //Would need to add a scale factor to this to make it work for non-unit-sized objects
 {
-	float t = (int)(*Coordinate) + 0.5;
-	return t;
+	(*Coordinate) = ((int)(*Coordinate)) + 0.5f;
+
 }
 
 int ImportMapDataFromFile(char *FileName)
 {
-	return 0;
+//	return 0;
+	int w = -1;
+	int l = -1;
+	char trash[10];
+	FILE* input;
+	input = fopen(FileName, "r");
+	if(input == NULL)
+	{
+		return 0;
+	}
+
+	else
+	{
+		fscanf(input,"%s %i", trash, &w);
+		fscanf(input,"%s %i", trash, &l);
+
+		if (w > 0 && l > 0)
+		{
+			MapData = malloc(l*sizeof(int*));
+			BinaryCollisionArray = malloc(l* sizeof(int*));
+
+			for(int i=0;i<BINARY_MAP_HEIGHT;i++)
+			{
+				BinaryCollisionArray[i] = malloc(w * sizeof(int));
+				MapData = malloc(w * sizeof(int));
+
+				for (int j = 0; j < BINARY_MAP_WIDTH; j++)
+				{
+					fscanf(input,"%i", &MapData[i][j]);
+
+					if (MapData[i][j] ==1)
+					{
+						BinaryCollisionArray[i][j] = 1;
+					}
+
+					else
+					{
+						BinaryCollisionArray[i][j] = 0;
+					}
+				}
+			}
+			fclose(input);
+			input = NULL;
+			return 1;
+		}
+
+		else
+		{
+			return 0;
+		}
+	}
+
+
 }
 
 void FreeMapData(void)
@@ -126,7 +178,7 @@ void FreeMapData(void)
 	}
 
 	free(BinaryCollisionArray);
-	free(MapData[i]);
+	free(MapData);
 }
 
 void PrintRetrievedInformation(void)
