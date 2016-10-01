@@ -130,31 +130,70 @@ int ImportMapDataFromFile(char *FileName)
 		fscanf(input,"%s %i", trash, &w);
 		fscanf(input,"%s %i", trash, &l);
 
+
+
 		if (w > 0 && l > 0)
 		{
+			BINARY_MAP_WIDTH = w;
+			BINARY_MAP_HEIGHT = l;
+
 			MapData = malloc(l*sizeof(int*));
 			BinaryCollisionArray = malloc(l* sizeof(int*));
+		
 
-			for(int i=0;i<BINARY_MAP_HEIGHT;i++)
+
+			for (int j = BINARY_MAP_HEIGHT - 1; j >= 0; --j)
 			{
-				BinaryCollisionArray[i] = malloc(w * sizeof(int));
-				MapData = malloc(w * sizeof(int));
 
-				for (int j = 0; j < BINARY_MAP_WIDTH; j++)
+
+				for (int i = 0; i < BINARY_MAP_WIDTH; ++i)
 				{
-					fscanf(input,"%i", &MapData[i][j]);
-
-					if (MapData[i][j] ==1)
+					if (j == BINARY_MAP_HEIGHT - 1)
 					{
-						BinaryCollisionArray[i][j] = 1;
+						BinaryCollisionArray[i] = malloc(w * sizeof(int));
+						MapData[i] = malloc(w * sizeof(int));
 					}
 
-					else
-					{
-						BinaryCollisionArray[i][j] = 0;
-					}
+							fscanf(input,"%i", &MapData[i][j]);
+
+							if (MapData[i][j] ==1)
+							{
+								BinaryCollisionArray[i][j] = 1;
+							}
+
+							else
+							{
+								BinaryCollisionArray[i][j] = 0;
+							}
+					
 				}
+
+				
 			}
+
+
+
+			//for(int i=BINARY_MAP_HEIGHT-1;i>=0;i--)//<BINARY_MAP_HEIGHT;i++)
+			//{
+			//	BinaryCollisionArray[i] = malloc(w * sizeof(int));
+			//	MapData[i] = malloc(w * sizeof(int));
+
+			//	for (int j =0;j<BINARY_MAP_WIDTH;j++)
+			//	{
+			//		
+			//		fscanf(input,"%i", &MapData[j][i]);
+
+			//		if (MapData[j][i] ==1)
+			//		{
+			//			BinaryCollisionArray[j][i] = 1;
+			//		}
+
+			//		else
+			//		{
+			//			BinaryCollisionArray[j][i] = 0;
+			//		}
+			//	}
+			//}
 			fclose(input);
 			input = NULL;
 			return 1;
